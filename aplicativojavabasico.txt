@@ -1,0 +1,102 @@
+# Carpeta del proyecto
+mkdir -p ~/labapp/WEB-INF
+
+# index.jsp con estilo e info dinámica
+cat <<'EOF' > ~/labapp/index.jsp
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+  // Datos dinámicos
+  String serverInfo = application.getServerInfo();              // Tomcat x.y.z
+  String javaVersion = System.getProperty("java.version");
+  String osName = System.getProperty("os.name");
+  String osVersion = System.getProperty("os.version");
+  String arch = System.getProperty("os.arch");
+  long uptimeSec = java.lang.management.ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
+  java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  String now = fmt.format(new java.util.Date());
+%>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laboratorio Java – Tomcat</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--bg:#f6f7fb;--card:#ffffff;--ink:#1f2937;--muted:#6b7280;--ok:#16a34a;--accent:#3b82f6;}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    background:var(--bg);color:var(--ink)}
+    .wrap{max-width:960px;margin:48px auto;padding:0 20px}
+    .hero{display:flex;gap:16px;align-items:center;margin-bottom:24px}
+    .logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:grid;place-items:center;color:#fff;font-weight:700}
+    h1{margin:0;font-size:28px} .muted{color:var(--muted);margin-top:4px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.06);padding:18px}
+    .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px}
+    .v{font-size:15px;margin:0}
+    .footer{margin-top:28px;font-size:13px;color:var(--muted)}
+    .ok{display:inline-block;background:rgba(22,163,74,.1);color:var(--ok);border:1px solid rgba(22,163,74,.25);
+        padding:4px 10px;border-radius:999px;font-weight:600}
+    .chip{display:inline-block;background:rgba(59,130,246,.08);color:var(--accent);border:1px solid rgba(59,130,246,.25);
+        padding:4px 10px;border-radius:999px;margin-right:6px;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="logo">JL</div>
+      <div>
+        <h1>Laboratorio Java en Tomcat</h1>
+        <div class="muted">Aplicación de verificación para el laboratorio de servidores</div>
+      </div>
+    </div>
+
+    <span class="ok">Aplicación desplegada correctamente</span>
+
+    <div class="grid">
+      <div class="card">
+        <p class="k">Servidor de Aplicaciones</p>
+        <p class="v"><%= serverInfo %></p>
+        <p class="k">Versión de Java</p>
+        <p class="v"><%= javaVersion %></p>
+      </div>
+
+      <div class="card">
+        <p class="k">Sistema Operativo</p>
+        <p class="v"><%= osName %> <%= osVersion %> (<%= arch %>)</p>
+        <p class="k">Fecha/Hora del servidor</p>
+        <p class="v"><%= now %></p>
+      </div>
+
+      <div class="card">
+        <p class="k">Uptime del proceso Java</p>
+        <p class="v"><%= uptimeSec %> s</p>
+        <p class="k">Ruta de la app</p>
+        <p class="v"><%= request.getContextPath().isEmpty() ? "/" : request.getContextPath() %></p>
+      </div>
+
+      <div class="card">
+        <p class="k">Cliente</p>
+        <p class="v">IP: <%= request.getRemoteAddr() %></p>
+        <p class="v">Navegador: <%= request.getHeader("User-Agent") %></p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="chip">Tomcat</span><span class="chip">Java</span><span class="chip">Oracle Linux</span>
+      <br/>Equipo: <strong>Ximena Aguilar y grupo</strong> (y compañeros). 
+    </div>
+  </div>
+</body>
+</html>
+EOF
+EMPAQUETAR Y DESPLEGAR 
+# Empaquetar WAR
+/usr/lib/jvm/java-17-openjdk-*/bin/jar -cvf ~/labapp.war -C ~/labapp/ .
+
+# Limpiar despliegues anteriores del mismo nombre (si existieran)
+sudo rm -rf /opt/tomcat/webapps/labapp /opt/tomcat/webapps/labapp.war
+
+# Copiar y reiniciar Tomcat
+sudo cp ~/labapp.war /opt/tomcat/webapps/
+sudo systemctl restart tomcat
+
