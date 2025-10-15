@@ -1,0 +1,115 @@
+sudo tee /opt/payara6/glassfish/domains/domain1/docroot/index.html > /dev/null <<EOL
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Aplicativo Java</title>
+<style>
+body {
+font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+margin: 0;
+height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+.container {
+background-color: rgba(255, 255, 255, 0.6);
+padding: 40px;
+border-radius: 15px;
+box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+text-align: center;
+width: 450px;
+max-height: 90vh;
+overflow-y: auto;
+}
+h1 {
+margin-bottom: 20px;
+color: #333;
+}
+input[type="text"] {
+width: 80%;
+padding: 10px;
+margin-bottom: 15px;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+}
+button {
+padding: 10px 20px;
+font-size: 16px;
+border: none;
+border-radius: 8px;
+background-color: #2575fc;
+color: white;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+button:hover {
+background-color: #6a11cb;
+}
+#greeting {
+margin-top: 20px;
+font-weight: bold;
+color: #333;
+}
+table {
+margin-top: 25px;
+width: 100%;
+border-collapse: collapse;
+background-color: rgba(255,255,255,0.8);
+border-radius: 10px;
+overflow: hidden;
+}
+th, td {
+padding: 8px 12px;
+border-bottom: 1px solid #ccc;
+text-align: left;
+font-size: 14px;
+}
+th {
+background-color: rgba(255,255,255,0.9);
+color: #333;
+}
+</style>
+<script>
+function greet() {
+var name = document.getElementById('nameInput').value;
+if(name.trim() === '') name = 'Guest';
+document.getElementById('greeting').innerText = '¡Hola ' + name + '!';
+var now = new Date();
+var timestamp = now.toLocaleString();
+// Crear nueva fila en la tabla
+var table = document.getElementById('visitorTable');
+var row = table.insertRow(-1);
+var cell1 = row.insertCell(0);
+var cell2 = row.insertCell(1);
+cell1.textContent = timestamp;
+cell2.textContent = name;
+// Limpiar input
+document.getElementById('nameInput').value = '';
+}
+</script>
+</head>
+<body>
+<div class="container">
+<h1>Proyecto Final - Aplicativo Java</h1>
+<input type="text" id="nameInput" placeholder="Ingresa tu nombre">
+<br>
+<button onclick="greet()">Saludar</button>
+<h2 id="greeting"></h2>
+<table id="visitorTable">
+<thead>
+<tr>
+<th>FECHA Y HORA</th>
+<th>VISITANTE</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</body>
+</html>
+EOL
