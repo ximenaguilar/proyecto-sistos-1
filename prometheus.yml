@@ -1,0 +1,27 @@
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'node_exporters'
+    static_configs:
+      - targets:
+          - '35.208.87.146:9100'   # ajusta a tus IPs estáticas
+          - '35.206.100.155:9100'
+          - '127.0.0.1:9100'       # si server3 también corre node_exporter
+  - job_name: 'webapps_http_check'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://35.208.87.146:8080/labapp/
+          - http://35.206.100.155:8080/labapp/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
