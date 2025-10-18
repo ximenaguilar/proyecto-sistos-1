@@ -1,0 +1,47 @@
+- name: server-alerts
+  rules:
+  # 🚨 ALERTA 1: Servidor caído (Node Exporter)
+  - alert: InstanceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Instancia caída: {{ $labels.instance }}"
+      description: "No hay respuesta del target por más de 1 minuto."
+  # ⚠️ ALERTA 2: CPU > 80%
+  - alert: HighCPUUsage
+    expr: avg by (instance) (1 - avg by (instance)(irate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "CPU > 80% en {{ $labels.instance }}"
+      description: "Uso promedio de CPU sobre 80% por más de 2 minutos."
+  # ⚠️ ALERTA 3: RAM > 85%
+  - alert: HighMemoryUsage
+    expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.85
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Memoria > 85% en {{ $labels.instance }}"
+      description: "Uso de memoria sobre 85% por más de 2 minutos."
+  # ⚠️ ALERTA 4: Tiempo de respuesta alto (Blackbox)
+  - alert: HighResponseTime
+    expr: probe_duration_seconds{job="webapps_http_check"} > 2
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Respuesta lenta en {{ $labels.instance }}"
+      description: "El tiempo de respuesta HTTP supera los 2 segundos."
+  # 🚨 ALERTA 5: Sitio no responde (Blackbox)
+  - alert: SiteDown
+    expr: probe_success{job="webapps_http_check"} == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Sitio caído: {{ $labels.instance }}"
+      description: "El sitio no responde correctamente (probe_success = 0)."
